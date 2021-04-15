@@ -1,6 +1,7 @@
 # Functions to create boxplots
 library(tidyverse)
-
+library(ggthemes)
+source("fct_tab1_import_excel.R")
 #### A NON-WORKING MESS 16.3.2021 #### -Rasmus
 
 # Define the colnames that we want to plot either in video or regular
@@ -24,10 +25,9 @@ tt <- aineisto %>%
 create_boxplot <- function(variable) {
   tt %>%
   ggplot(aes(x = .data[[variable]])) + # Double curly brackets for colnames
-      geom_boxplot() +
-    theme_minimal_grid()
+      geom_boxplot() 
 }
-
+create_boxplot(colnames(tt)[2])
 #Create histograms
 create_hist <- function(variable) {
   tt %>%
@@ -35,8 +35,15 @@ create_hist <- function(variable) {
              geom_histogram()
 }
 
-map(colnames(tt), create_hist)
+zz <- starwars %>% pull(name)
+graphs <- map(colnames(tt), create_boxplot)
+
+graphs %>% as.data.frame() %>% pull()
 # Map through the columns that remain
+
+typeof(graphs) == typeof(zz)
+
+graphs[2]
 purrr::map(colnames(tt), create_boxplot)
 purrr::map(colnames(tt), create_hist)
 

@@ -22,8 +22,11 @@ linjat %>%
   mutate(kohde = str_sub("[:digit:]*", kohteen.nro), .before = kohteen.nro)
 
 
+imap_chr(sample(10), ~ paste0(.y, ": ", .x))
+iwalk(mtcars, ~ cat(.y, ": ", median(.x), "\n", sep = ""))
 
-
+iwalk(mtcars, ~ cat(.y, ": ", median(.x), "\n", sep = ""))
+iwalk(graphs, ~print({paste0("plot_", .y)}))
 
 
 fct_5_data <- videot %>% edit_kartoittaja_syvyys()
@@ -150,3 +153,25 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+
+
+
+
+zz <- xxx %>% mutate_velmu_xl()
+
+zzz <- zz %>% 
+  prepare_for_widepivot %>%
+  pivot_data_wider()
+
+
+
+
+
+
+
+
+
+
+
+

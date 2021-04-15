@@ -5,9 +5,6 @@ source("fct_menetelmakohtainen_select.R")
 library(leaflet)
 
 # Consider whether this check is necessary or whether it should be included on the next page technical checks
-tab1_ui <- function(id) {
-  tagList(selectInput(NS(id, "taulukkomuoto"), "Valitse taulukon kartoitusmenetelmä", choices = c("Video", "Linja", "Kartoituspiste")))
-}
 
 tab1_ui_main <- function(id){
   ns <- NS(id)

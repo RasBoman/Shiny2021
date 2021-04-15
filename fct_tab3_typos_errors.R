@@ -8,10 +8,11 @@ prepare_for_widepivot <- function(dataframe1) {
   dataframe1 %>%
     dplyr::mutate(across(where(is.character), str_trim)) %>%
     dplyr::filter(kohteen.taso == 63) %>% # Ei kokoomarivejä
-    dplyr::mutate(kartoittaja = ifelse(is.na(sukelluslinjan.kartoittaja), videon.analysoija, sukelluslinjan.kartoittaja), .after = epavarma.pohja) %>%
-    dplyr::mutate(peit_tai_lkm = ifelse(is.na(lajin.peittavyys), lajin.lukumaara, lajin.peittavyys)) %>% # Siirretään kartoittajat ja peittävyydet yhteen sarakkeeseen
+    dplyr::mutate(kartoittaja = ifelse(is.na(sukelluslinjan.kartoittaja), videon.analysoija, sukelluslinjan.kartoittaja), .after = epavarma.pohja) %>% # Luodaan vain yksi sarake kartoittajille
+    dplyr::mutate(peit_tai_lkm = ifelse(is.na(lajin.peittavyys), lajin.lukumaara, lajin.peittavyys)) %>% # Siirretään peittävyydet yhteen sarakkeeseen
     dplyr::select(-c(lajin.peittavyys, lajin.lukumaara, lajin.maaran.yksikko, # Poistetaan lajikohtaiset muuttujat
-                     lajin.korkeus, laji.epifyyttinen, lajihavainnon.laatu, laji.huomautukset)) %>%
+                     lajin.korkeus, laji.epifyyttinen, lajihavainnon.laatu, laji.huomautukset, havainnon.tarkistustarve)) %>%
+    dplyr::select(-c(LAJIN.BIOMASSA:hanke.ID)) %>%
     dplyr::select(-c(avoimuusindeksi, kohteen.huomautukset, secchi.syvyys, kartoituskerran.huomautukset))
 }
 

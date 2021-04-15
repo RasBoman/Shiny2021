@@ -14,12 +14,12 @@
 #' "mod_tabX_YY.R" contains the code for UI and SERVER for the tab described
 #' fct_tabX_YY.R" contains the functions for the same tab module
 #' 
-# getwd()
 
-#### Libraries an
+
+#### Libraries and sources
 
 source("mod_tab1_ui_import_excel.R")
-#source("mod_tab2_plots.R") NOT READY
+source("mod_tab2_plots.R")# NOT READY
 source("mod_tab3_errors.R")
 source("fct_tab1_import_excel.R")
 source("texts_for_app.R")
@@ -28,7 +28,7 @@ source("mod_tab5_mainmap.R")
 #source("mod_tab6_linegraph.R")
 options(shiny.maxRequestSize = 30*1024^2, encoding = "UTF-8")
 
-# source("utils.R")
+
 #### Constant variables and dataframes ####
 
 # Path to this project = 
@@ -37,7 +37,8 @@ lajinimet <- read_rds("data/lajit.rds")
 
 #### UI ####
 ui <- fluidPage(
-  navbarPage("VELMU-tarkastus",
+  useShinyalert(),
+  navbarPage("Aineiston tarkastus",
              
              #### 1. tabPanel: Start from here ####
              # 10.3.2021 Ok for now
@@ -45,9 +46,9 @@ ui <- fluidPage(
                       # Layout: erillinen paneeli vasemmassa reunassa
                       sidebarLayout(
                         sidebarPanel(width = 3,
-                                     tab1_ui("tab1"), # mod_tab1_ui_import_excel.R
+                                     tab1_ohjeet, # texts_for_app.R
                                      fileInput("file1", "Aloita lataamalla excel-taulukko:", multiple = FALSE, accept = c(".xls", ".xlsx", ".xlsm")),
-                                     p(tab1_import_ohje)), # texts_for_app.R
+                                     tab1_upload_ohje), 
                         
                         mainPanel(width = 9,
                                   h2("Kartta"),
@@ -61,7 +62,7 @@ ui <- fluidPage(
                         sidebarPanel(width = 3),
                         mainPanel(width = 9,
                                   h2("Boxplotit"),
-                                  uiOutput("ruudunSyvyysBoxPlot")))),
+                                  tab2_UI_plots("ruudunSyvyys")))),
              
              #### 3. tabPanel: Teknisiä tarkastuksia erityisesti duplikaattien suhteen ####
              tabPanel("Tekninen tarkastus",
@@ -89,14 +90,45 @@ server <- function(input, output, session) {
   #### REACTIVE Uploaded dataframe ####
   # This dataframe is uploaded by the user. Use this in further server functions
   # Until user uploads own data, testilinjat is shown as example.
+  # Siirrä tämä paketti johonkin moduuliin jos kerkeät / Rasmus 14.4.2021
   ogdf <- reactive({
-
-    if (!is.null(input$file1)){
-      aineisto <- return_filtered_df(input$file1$datapath)
+    
+    # Niin kauan kuin Appiin ei ole luettu sisään tiedostoa, käytetään esimerkkiaineistoa
+    if (!is.null(input$file1)) {
+      aineisto_in <- read_velmu_xl(input$file1$datapath) # fct_tab1_import_excel.R
+      
+      # Tarkistetaan luetun taulukon sarakemäärä, ja error tarvittaessa
+      if (ncol(aineisto_in) != 160) {
+        shinyalert("Virhe excel-taulukossa",
+                   "Tarkista, että taulukko on LajiGIS-yhteensopivassa muodossa:
+                   lajihavainnot on sarakkeessa [DM], hanke sarakkeessa [ER] ja viimeinen sarake taulukossa on [FD]", type = "error")
+        returnValue()
+        aineisto <- return_filtered_df("data/testilinjat.xlsx")
+        return(aineisto)
+        
+        # Tarkistetaan, että sarakkeet oikeilla paikoillaan (tai siis yksi sarake)  
+      } else if (colnames(aineisto_in[109]) != "YHT") {
+        shinyalert("Virhe excel-taulukossa",
+                   "Sarakkeet vaikuttavat olevan väärillä paikoilla. Tarkista, että 'pohjanlaadut yhteensä' 
+                   löytyy sarakkeesta [DE] ja otsikot on rivillä 6. Eli esimerkiksi solussa [DE6] on teksti 'YHT'. Korjaa sarakkeet tarvittaessa.")
+        returnValue
+        aineisto <- return_filtered_df("data/testilinjat.xlsx")
+        return(aineisto)
+      }
+      # Muussa tapauksessa muokataan sarakkeiden nimet ja palautetaan käyttöön
+      else {
+        aineisto <- aineisto_in %>%
+          mutate_velmu_xl() 
+        
+        return(aineisto)
+      }
+      # Esimerkkiaineisto
     } else {
       aineisto <- return_filtered_df("data/testilinjat.xlsx")
+      return(aineisto)
+      
     }
-    return(aineisto)
+    
   })
 
   #### Calls To tab MODULES ####
@@ -104,6 +136,7 @@ server <- function(input, output, session) {
   # Tab 1 the benigging
   tab1MapServer("map1", df_to_use = ogdf) # mod_tab1_ui_import_excel.R
   # Tab 2 graphs
+  tab2_Server("ruudunSyvyys", df_to_use = ogdf)
   # TAB2SERVER HERE
   # Tab 3 Errors and typos
   tab3TypoServer("pakolliset_tiedot", df_to_use = ogdf)
@@ -113,6 +146,8 @@ server <- function(input, output, session) {
   tab5LeafletServer("paakartta", df_to_use = ogdf)
   # Tab 6 Graphs of dive lines
   #tab6LinegraphServer("linjagraafit", df_to_use = ogdf)
+  # Tab 7 whole table
+  
   
 }
 

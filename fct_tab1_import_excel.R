@@ -11,6 +11,7 @@ library(tidyverse)
 library(shiny)
 library(readxl)
 library(data.table)
+library(shinyalert)
 
 #### FUNCTIONS ####
 
@@ -18,10 +19,14 @@ read_velmu_xl <- function(path_to_file) {read_xlsx(path_to_file,
                                                    sheet = 1,
                                                    skip = 5,
                                                    .name_repair = "universal",
-                                                   guess_max = 10000) %>%
-    dplyr::select(1:148)
-}
+                                                   guess_max = 10000)
+  }
 
+#xx <- read_velmu_xl("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/ALLECO/Kopio_SM_sukelluslinjat_KORJATTU.xlsm")
+xxx <- read_velmu_xl("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/SYKE/Velmu2020_kahlauspisteet_yhdistetty.xlsx")
+
+
+#### Mutate and rename ####
 mutate_velmu_xl <- function(raw_velmu_df) {
   
   aineisto <- raw_velmu_df %>%
@@ -179,6 +184,7 @@ mutate_velmu_xl <- function(raw_velmu_df) {
                   hanke.ID = 148) 
 }
 
+#### Select relevant variables ####
 # Selects all the variables that are relevant in velmudata
 filter_df_all <- function(renamed_df) {
   
@@ -195,14 +201,11 @@ filter_df_all <- function(renamed_df) {
                   148) # Hanke 
 }
 
+#### Combine previous functions ####
 # This works as a standalone to read the file in:
 return_filtered_df <- function(placeholder_to_user_input) {
   
   # Mutate the raw df with functions above
-  dfv <- read_velmu_xl(placeholder_to_user_input) %>%
+  read_velmu_xl(placeholder_to_user_input) %>%
     mutate_velmu_xl() 
 }
-
-# Examples
-# return_filtered_df("data/testilinjat.xlsx")
-
