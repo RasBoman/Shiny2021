@@ -2,37 +2,44 @@ source("fct_menetelmakohtainen_select.R")
 source("fct_tab1_import_excel.R")
 source("fct_tab3_typos_errors.R")
 
+# Tämä vaikuttaisi olevan ok for now - Rasmus 15.4.2021
+
 #### TAB3 UI ####
 
 tab3_ui_main <- function(id){
   ns <- NS(id)
   tagList(
     wellPanel(
-      h3("1/X Puuttuvat, pakolliset tiedot"),
+      h3("1/5 Puuttuvat, pakolliset tiedot"),
       p("Mikäli tietoja puuttuu, sarake ja määrä on listattu alle. Mikäli tämä harmaa laatikko on tyhjä, kaikki on ok."),
       dataTableOutput(ns("pakolliset_tiedot"))),
     tags$hr(),
     wellPanel(
-      h3("2/X Duplikaatit rivien välillä"),
+      h3("2/5 Vaihtuvat tiedot samoilla kohteen numeroilla."),
+      p("Tämän taulukon tulee olla tyhjä. Mikäli laatikossa on tietoja, tiedot muuttuvat rivien välillä, vaikka kohteen nro säilyy samana. 
+        Mikäli taulukkoa on täytetty käyttäjälomakkeen avulla, alla olevien tietojen tulisi olla identtisiä rivien välillä"),
       dataTableOutput(ns("testiDT"))),
     tags$hr(),
+    #wellPanel(
+    #  h3("3/XX TEsTIPANeELI"),
+    #  verbatimTextOutput(ns("duplos_loop"))),
+    #tags$hr(),
     wellPanel(
-      h3("3/X TEsTIPANeELI"),
-      verbatimTextOutput(ns("duplos_loop"))),
-    tags$hr(),
-    wellPanel(
-      h3("4/X Duplikaattilajit"),
-      p("Alla olevilla pisteillä sama laji esiintyy ruudulla useampaan kertaan (laji, epifyyttisyys ja havainnon laatu identtisiä). Poista duplikaatit Excelistä."),
+      h3("3/5 Duplikaattilajit"),
+      p("Tämän taulukon tulee olla tyhjä. Alla olevilla pisteillä sama laji esiintyy ruudulla useampaan kertaan (laji, epifyyttisyys ja havainnon laatu identtisiä)."),
+      p("Poista duplikaatit Excelistä. Yhdistä tarvittaessa lajitietoja siten, että laji esiintyy ruudulla vain kerran."),
       dataTableOutput(ns("duplos_lajit"))),
     tags$hr(),
     wellPanel(
-      h3("5/X Kategoriset muuttujat"),
-      p("Käy nämä läpi, ettei joukossa ole omituisia arvoja tai väärään sarakkeeseen eksyneitä tietoja."),
+      h3("4/5 Kategoriset muuttujat"),
+      p("Excelistä on poimittu sarakkeet, joissa tulee olla vain muutama eri arvo."),
+      p("Käy nämä läpi, ettei joukossa ole omituisia arvoja tai väärässä sarakkeessa olevia tietoja."),
       verbatimTextOutput(ns("cat_vars"))),
     tags$hr(),
     wellPanel(
-      h3("6/X Muut sarakkeet"),
-      p("Alla olevassa taulukossa on tietoja sarakkeissa, jotka eivät täyty Excelin käyttäjälomakkeen kautta."),
+      h3("5/5 Muut sarakkeet"),
+      p("Alla oleva taulukko on useimmiten tyhjä. Siihen on haettu tiedot sarakkeista, jotka eivät täyty Excelin käyttäjälomakkeen kautta."),
+      p("Nämä tiedot on siis manuaalisesti täytetty Exceliin ja todennäköisesti ok."),
       dataTableOutput(ns("nonessential_vars"))))
 }
 
@@ -55,9 +62,9 @@ tab3TypoServer <- function(id, df_to_use) {
                                  map(unique))
     
     # TÄMÄ EI TOIMI 17.3.2021 !!
-    list_of_dupl_values <- reactive(for(i in 1:length(dupl_kohdenrot())){
-      DetectTyposInCol2(duplicate_vars(), dupl_kohdenrot()[[i]])
-      })
+    #list_of_dupl_values <- reactive(for(i in 1:length(dupl_kohdenrot())){
+    #  DetectTyposInCol2(duplicate_vars(), dupl_kohdenrot()[[i]])
+    #  })
     
     laji_duplos <- reactive(df_to_use() %>% filter_dupl_lajit())
     
@@ -69,7 +76,7 @@ tab3TypoServer <- function(id, df_to_use) {
     output$testiDT <- renderDataTable({data.table(show_if_not_empty_fun(duplicate_vars()))}) ##JATKA TÄMÄN REAKTIIVISUUDESTA MA 15.3.2021½!!!!
     
     #### Jatka tiistaina miksei DetectTyposInCol2 luo listaa vaan vain yhden arvon?
-    output$duplos_loop <- renderPrint({list_of_dupl_values()})
+    #output$duplos_loop <- renderPrint({list_of_dupl_values()})
     output$duplos_lajit <- renderDataTable({data.table(show_if_not_empty_fun(laji_duplos()))})
     output$cat_vars <- renderPrint({unique_cat_vars(df_to_use())})
     output$nonessential_vars <- renderDataTable({data.table(nonessentials())})

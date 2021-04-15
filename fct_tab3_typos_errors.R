@@ -1,9 +1,12 @@
 source("fct_menetelmakohtainen_select.R")
 source("fct_tab1_import_excel.R")
 
+# Tämä vaikuttaisi olevan ok 15.4.2021 -Rasmus
+
 #### Duplikaatit koko taulukossa ####
 
 # Kullakin hierarkian pisteellä lajitietoja lukuunottamatta tietojen tulisi olla identtisiä.
+# Valmistellaan taulukko leveäksi kääntöä varten
 prepare_for_widepivot <- function(dataframe1) {
   dataframe1 %>%
     dplyr::mutate(across(where(is.character), str_trim)) %>%
@@ -11,9 +14,10 @@ prepare_for_widepivot <- function(dataframe1) {
     dplyr::mutate(kartoittaja = ifelse(is.na(sukelluslinjan.kartoittaja), videon.analysoija, sukelluslinjan.kartoittaja), .after = epavarma.pohja) %>% # Luodaan vain yksi sarake kartoittajille
     dplyr::mutate(peit_tai_lkm = ifelse(is.na(lajin.peittavyys), lajin.lukumaara, lajin.peittavyys)) %>% # Siirretään peittävyydet yhteen sarakkeeseen
     dplyr::select(-c(lajin.peittavyys, lajin.lukumaara, lajin.maaran.yksikko, # Poistetaan lajikohtaiset muuttujat
-                     lajin.korkeus, laji.epifyyttinen, lajihavainnon.laatu, laji.huomautukset, havainnon.tarkistustarve)) %>%
-    dplyr::select(-c(LAJIN.BIOMASSA:hanke.ID)) %>%
-    dplyr::select(-c(avoimuusindeksi, kohteen.huomautukset, secchi.syvyys, kartoituskerran.huomautukset))
+                     lajin.korkeus, laji.epifyyttinen, lajihavainnon.laatu, laji.huomautukset))  %>%
+    dplyr::select(-c(roskat.koodisto, roskat.kpl, havainnon.tarkistustarve)) %>%
+    dplyr::select(-c(avoimuusindeksi, kohteen.huomautukset, secchi.syvyys, kartoituskerran.huomautukset)) %>%
+    dplyr::select(-(LAJIN.BIOMASSA:hanke.ID))
 }
 
 # Pivot data, duplicates will show up
@@ -33,7 +37,7 @@ find_duplos <- function(dat)dat[dat$kohteen.nro %in% dat$kohteen.nro[duplicated(
 # Bring it all together in a pipe and turn into function:
 find_duplicated_data <- function(dataframe3){
   dataframe3 %>%
-    filter_df_all() %>% # From fct_import_excel.R
+    #filter_df_all() %>% # From fct_import_excel.R
     prepare_for_widepivot() %>%
     pivot_data_wider() %>%
     find_duplos() %>%
@@ -66,7 +70,7 @@ filter_dupl_lajit <- function(dat){
 
 #### Tulosta duplikaattien sarakkeiden nimet ####
 
-# TÄMÄ EI TOIMI 17.3.2021, näyttää vääriä arvoja!!
+# TÄMÄ EI TOIMI SHINYSSÄ 15.4.2021, näyttää vääriä arvoja!!
 DetectTyposInCol2 <- function(vdata, kohdenro) {
   dat.t <- vdata[vdata$kohteen.nro == kohdenro, ] %>% dplyr::select(-kohteen.nro) # Filtteröidään kohdenron perusteella.
   unique.row.information <- apply(dat.t, 2, function(x) {length(unique(x))}) # LASKEE sarakkeista uniikkien arvojen määrän.
@@ -113,21 +117,23 @@ unique_cat_vars <- function(data_to_use){
 
 #### Unimportant variables that shouldn't have data #### 
 
+# Valitaan päinvastaiset sarakkeet kuin muualla
 
 select_unimportant_vars <- function(renamed_df) {
   
   renamed_df %>%
     dplyr::select(-c(1:4, # Perustiedot
-                  9:16, # Koordinaatit
-                  14:20, # Menetelmät, huomiot
-                  23:39, # Kartoituskerran tietoja
-                  47:55, # Videon tiedot
-                  57, 63:68, # Linjan tietoja
-                  90:110, # Pohjanlaadut
-                  117:126, # Lajitiedot & uhanalaiskuvaus
-                  148)) # Hanke 
+                     9:16, # Koordinaatit
+                     14:20, # Menetelmät, huomiot
+                     23:39, # Kartoituskerran tietoja
+                     47:55, # Videon tiedot
+                     57, 63:68, # Linjan tietoja
+                     90:110, # Pohjanlaadut
+                     117:126, # Lajitiedot & uhanalaiskuvaus
+                     148)) # Hanke 
 }
 
+# Poimitaan täältä jos sarakkeissa on arvoja niin mukaan
 sum_na_nonessential_vars <- function(data_in) {
   data_in %>%
     filter(kohteen.taso == 63) %>%

@@ -11,7 +11,11 @@ tab5_ui_main <- function(id){
     sidebarLayout(
       sidebarPanel(width = 2,
                    h3("Kartoittaja"),
-                   selectInput(ns("filt_kart"), label = "Suodata kartoittajan perusteella:", choices = character())), # Lisää ohjeita jos tarpeen
+                   selectInput(ns("filt_kart"), label = "Aloita valitsemalla kartoittaja(t):", 
+                               choices = character(), multiple = T),
+                   wellPanel(p("Karttapistettä klikkaamalla saat näkyviin lajiston ja muuta tietoa pisteeltä."),
+                             p("Käy tästä kartasta läpi ainakin sukelluslinjojen suunnat ja pisteiden syvyydet karkealla tasolla."))), # Lisää ohjeita jos tarpeen
+      
       mainPanel(width = 10,
                 h2("Kartoitukset kartalla"),
                 leafletOutput(ns("mainmap"), height = "800px"))))
@@ -23,8 +27,13 @@ tab5LeafletServer <- function(id, df_to_use) {
     id, 
     function(input, output, session) {
       
+      unified_df <- reactive({df_to_use() %>% edit_kartoittaja_syvyys})
+      
+      observeEvent(unified_df(), {updateSelectInput(session, "filt_kart", choices = unique(unified_df()$kartoittaja))})
       # Separate wrangling function from drawing of leaflet:
-      data_for_map <- reactive({df_to_use() %>% mutate_for_map() })
+      data_for_map <- reactive({df_to_use() %>% 
+          mutate_for_map() %>% 
+          filter(kartoittaja %in% input$filt_kart)})
       
       #### OUTPUTS ####
       output$mainmap <- renderLeaflet({leaflet_depth_map(data_for_map())})  

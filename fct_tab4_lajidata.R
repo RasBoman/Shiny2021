@@ -2,7 +2,7 @@
 #' Funktiot liittyen lajidataan 
 #' Created by: Rasmus Boman
 #' Date: 18.3.2021
-#' 
+#' Vaikuttaisi olevan ok 15.4.2021 -Rasmus
 lajinimet <- read_rds("data/lajit.rds")
 vesikasvirajat <- read_csv("data/VesikasviSummary.csv")
 hertta_lajit_excel <- read_xlsx(path = "data/lajinimet_hertta.xlsx")

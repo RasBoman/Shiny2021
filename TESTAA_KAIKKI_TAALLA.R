@@ -4,8 +4,7 @@ source("fct_menetelmakohtainen_select.R")
 source("fct_import_excel.R")
 source("fct_tab3_typos_errors.R")
 ######
-linjat <- return_filtered_df("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/SYKE/Velmu2020_sukelluslinjat_yhdistetty.xlsx") %>%
-  mutate_velmu_xl()
+
 aineisto12 <- return_filtered_df("data/testilinjat.xlsx")
 
 linjat %>%
@@ -156,7 +155,8 @@ shinyApp(ui, server)
 
 
 
-
+linjat <- return_filtered_df("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/SYKE/Velmu2020_sukelluslinjat_yhdistetty.xlsx") %>%
+  mutate_velmu_xl()
 
 zz <- xxx %>% mutate_velmu_xl()
 
@@ -166,7 +166,7 @@ zzz <- zz %>%
 
 
 
-
+colnames(zzz)
 
 
 

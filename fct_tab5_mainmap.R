@@ -44,7 +44,7 @@ leaflet_depth_map <- function(data_in){
     addCircleMarkers(data = data_in, lat = ~ruudun.koordinaatti.N, lng = ~ruudun.koordinaatti.E,
                      color = ~syvyysCol(depth_levels),
                      opacity = 0.9, fillOpacity = 0.9, 
-                     radius = ~ceiling(sqrt(lajimaara)*2),
+                     radius = ~ceiling(sqrt(lajimaara)*3),
                      popup = paste(
                        "Kohteen nimi:", data_in$kohteen.nimi, "<br>",
                        "Kartoittaja:", data_in$kartoittaja, "<br>", 

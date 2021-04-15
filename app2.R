@@ -7,13 +7,11 @@
 # Date created : 8.3.2021
 # Last updated : 17.3.2021
 
-############## LISÄÄ JOHONKIN NÄISSÄ SARAKKEISSA EI PITÄISI OLLA TIETOA ############
-
 #' App written in modules:
 #' 
 #' "mod_tabX_YY.R" contains the code for UI and SERVER for the tab described
 #' fct_tabX_YY.R" contains the functions for the same tab module
-#' 
+#' If a function is used from a different fct_ script, I've tried to specify it in the comment
 
 
 #### Libraries and sources

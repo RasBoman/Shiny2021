@@ -23,7 +23,7 @@ read_velmu_xl <- function(path_to_file) {read_xlsx(path_to_file,
   }
 
 #xx <- read_velmu_xl("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/ALLECO/Kopio_SM_sukelluslinjat_KORJATTU.xlsm")
-xxx <- read_velmu_xl("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/SYKE/Velmu2020_kahlauspisteet_yhdistetty.xlsx")
+#xxx <- read_velmu_xl("C:/Users/Rasmusbo/OneDrive - Metsahallitus/Data2020/SYKE/Velmu2020_kahlauspisteet_yhdistetty.xlsx")
 
 
 #### Mutate and rename ####
