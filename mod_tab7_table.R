@@ -4,10 +4,13 @@
 # Render the whole table
 
 tab7_ui_main <- function(id) {
-  tagList(dataTableOutput(NS(id, "taulukko")))
+  
+  tagList(wellPanel(h2("Koko taulukko"),
+                    p("Tältä välilehdeltä löytyy sovellukseen ladattu taulukko. Voit hakea, suodattaa ja järjestää tietoja eri kenttien perusteella.")),
+          dataTableOutput(NS(id, "taulukko")))
 }
 ### Siirrä tämä myöhemmin välilehdelle 6
-tab7Server <- function(id, df_to_use) {
+tab7_table_Server <- function(id, df_to_use) {
   moduleServer(id, function(input, output, session) {
     output$taulukko <- renderDataTable({
       req(df_to_use())

@@ -31,6 +31,69 @@ pivot_data_wider <- function(dataframe2){
     dplyr::select(kohteen.nro:kartoittaja)
 }
 
+# Duplicate coordinates, names and numbers
+
+dupl_nr_koords <- function(data_in){
+  
+  data_in <- data_in %>% filter(kohteen.taso == 63)
+  
+  unique_values <- data_in %>% 
+    select(kohteen.nro, ruudun.koordinaatti.N, ruudun.koordinaatti.E) %>%
+    unique() 
+
+  duplicated_nros <- unique_values %>%
+    select(kohteen.nro) %>%
+    duplicated()
+  
+  duplicated_nros_rev <- unique_values %>%
+    select(kohteen.nro) %>%
+    duplicated(fromLast = T)
+
+  bind_rows(unique_values[duplicated_nros, ], unique_values[duplicated_nros_rev, ]) %>%
+    arrange(kohteen.nro)
+
+}
+
+dupl_name_koords <- function(data_in){
+  
+  data_in <- data_in %>% filter(kohteen.taso == 63)
+  
+  unique_values <- data_in %>% 
+    select(kohteen.nimi, ruudun.koordinaatti.N, ruudun.koordinaatti.E) %>%
+    unique() 
+  
+  duplicated_names <- unique_values %>% 
+    select(kohteen.nimi) %>%
+    duplicated()
+  
+  duplicated_names_rev <- unique_values %>% 
+    select(kohteen.nimi) %>%
+    duplicated(fromLast = T)
+  
+  bind_rows(unique_values[duplicated_names, ], unique_values[duplicated_names_rev, ]) %>%
+    arrange(kohteen.nimi)
+}
+
+dupl_koords <- function(data_in){
+  
+  data_in <- data_in %>% filter(kohteen.taso == 63)
+  
+  unique_values <- data_in %>% 
+    select(kohteen.nro, kohteen.nimi, ruudun.koordinaatti.N, ruudun.koordinaatti.E) %>%
+    unique() 
+  
+  duplicated_koords <- unique_values %>% 
+    select(ruudun.koordinaatti.N, ruudun.koordinaatti.E) %>%
+    duplicated()
+  
+  duplicated_koords_rev <- unique_values %>% 
+    select(ruudun.koordinaatti.N, ruudun.koordinaatti.E) %>%
+    duplicated(fromLast = T)
+  
+  bind_rows(unique_values[duplicated_koords, ], unique_values[duplicated_koords_rev, ]) %>%
+    arrange(kohteen.nro)
+}
+
 # Anynomous function to find and display duplicated rows
 find_duplos <- function(dat)dat[dat$kohteen.nro %in% dat$kohteen.nro[duplicated(dat$kohteen.nro)], ]
 
@@ -48,16 +111,19 @@ find_duplicated_data <- function(dataframe3){
 testaa_pakolliset_sarakkeet <- function(data_to_use){
   data_to_use %>%
     filter_df_all() %>%
-    dplyr::filter(kohteen.taso == 63) %>%
-    dplyr::select(kohteen.nro, kohteen.taso, kohteen.nimi, kartoituspvm, ruudun.koordinaatti.E, ruudun.koordinaatti.N) %>% # Pakolliset sarakkeet
+    edit_kartoittaja_syvyys() %>% # fct_menetelmakohtainen_select.R
+    dplyr::select(kohteen.nro, kohteen.taso, kartoituksen.tarkoitus, kohteen.nimi, kartoituspvm, kartoittaja) %>% # Pakolliset sarakkeet
     purrr::map_df(~sum(is.na(.))) %>% # Summataan yhteen NAt
     dplyr::select(where(~ any(. != 0)))
 }
 
 # Display plot if these > 0 rows. dat should be reactive_df()
 show_if_not_empty_fun <- function(dat_in){
-  if(length(dat_in) != 0){
+  if (nrow(dat_in) != 0) {
     dat_in
+  } else {
+    #shiny::showNotification("No data", type = "error")
+    NULL
   }
 }
 
@@ -129,7 +195,7 @@ select_unimportant_vars <- function(renamed_df) {
                      47:55, # Videon tiedot
                      57, 63:68, # Linjan tietoja
                      90:110, # Pohjanlaadut
-                     117:126, # Lajitiedot & uhanalaiskuvaus
+                     116:126, # Lajitiedot & uhanalaiskuvaus
                      148)) # Hanke 
 }
 

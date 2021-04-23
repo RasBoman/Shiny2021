@@ -164,12 +164,9 @@ zzz <- zz %>%
   prepare_for_widepivot %>%
   pivot_data_wider()
 
-
-
-colnames(zzz)
-
-
-
+prepare_kohde_linjat(test_df) %>%
+  select(kohde) %>%
+  unique
 
 
 

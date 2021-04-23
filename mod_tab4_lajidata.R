@@ -5,6 +5,7 @@
 #' Vaikuttaisi olevan ok 15.4.2021 -Rasmus
 
 source("fct_tab4_lajidata.R")
+source("fct_menetelmakohtainen_select.R")
 
 #### TAB4 UI #### 
 
@@ -38,6 +39,8 @@ tab4_ui_main <- function(id){
            wellPanel(selectInput(ns("filt_laji"), label = "Suodata kartalla näytettävät lajit:", choices = character())),
            #### Outlierit taulukossa ####
            h4("Outlierit"),
+           p("Taulukkoon on merkitty kasvillisuus, joka on vanhaan aineistoon verrattuna matalimmassa tai syvimmässä yhdessä prosentissa"),
+           p("Taulukon tiedot eivät siis mitenkään välttämättä ole vääriä havaintoja, mutta joskus tarpeen tarkistaa."),
            wellPanel(dataTableOutput(ns("outlierit"))),
            wellPanel(selectInput(ns("filt_outlier"), label = "Tarkista outlier-sijainnit kohteen numeron perusteella", choices = character())),
            wellPanel(h4("Outlier-kartta"),
@@ -109,9 +112,9 @@ tab4LajiDataServer <- function(id, df_to_use) {
       #### Outputs ####
       output$laji_leaflet <- renderLeaflet({leaflet_map()})
       output$lajit_df <- renderDataTable({data.table(lajimaarat())})
-      output$lajinimi_vertailu <- renderDataTable({data.table(laji_comparison())})
-      output$lajia_ei_listassa <- renderDataTable({data.table(uudet_lajit())})
-      output$outlierit <- renderDataTable({data.table(outlier_species())})
+      output$lajinimi_vertailu <- renderDataTable({data.table(show_if_not_empty_fun(laji_comparison()))})
+      output$lajia_ei_listassa <- renderDataTable({data.table(show_if_not_empty_fun(uudet_lajit()))})
+      output$outlierit <- renderDataTable({data.table(show_if_not_empty_fun(outlier_species()))})
       output$outlier_leaflet <- renderLeaflet({outlier_map()})
     })
 }

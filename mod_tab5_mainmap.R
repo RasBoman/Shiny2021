@@ -31,11 +31,13 @@ tab5LeafletServer <- function(id, df_to_use) {
       
       observeEvent(unified_df(), {updateSelectInput(session, "filt_kart", choices = unique(unified_df()$kartoittaja))})
       # Separate wrangling function from drawing of leaflet:
+      
       data_for_map <- reactive({df_to_use() %>% 
           mutate_for_map() %>% 
           filter(kartoittaja %in% input$filt_kart)})
       
       #### OUTPUTS ####
+      
       output$mainmap <- renderLeaflet({leaflet_depth_map(data_for_map())})  
       #output$summ_lajit <- renderDataTable({data_for_map()})
     })

@@ -23,7 +23,9 @@ source("fct_tab1_import_excel.R")
 source("texts_for_app.R")
 source("mod_tab4_lajidata.R")
 source("mod_tab5_mainmap.R")
-#source("mod_tab6_linegraph.R")
+source("mod_tab6_linegraph.R")
+source("mod_tab7_table.R")
+#
 options(shiny.maxRequestSize = 30*1024^2, encoding = "UTF-8")
 
 
@@ -44,9 +46,12 @@ ui <- fluidPage(
                       # Layout: erillinen paneeli vasemmassa reunassa
                       sidebarLayout(
                         sidebarPanel(width = 3,
+                                     h2("Aloita tästä"),
                                      tab1_ohjeet, # texts_for_app.R
-                                     fileInput("file1", "Aloita lataamalla excel-taulukko:", multiple = FALSE, accept = c(".xls", ".xlsx", ".xlsm")),
-                                     tab1_upload_ohje), 
+                                     wellPanel(fileInput("file1", "Aloita lataamalla excel-taulukko:", multiple = FALSE, accept = c(".xls", ".xlsx", ".xlsm")),
+                                               tab1_upload_ohje),
+                                     tab1_periaate,
+                                     tab1_ongelmat), 
                         
                         mainPanel(width = 9,
                                   h2("Kartta"),
@@ -76,10 +81,13 @@ ui <- fluidPage(
                      tab4_ui_main("lajiaineisto")),
              #### 5. tabPanel: Pääkartta Add Brush? ####
              tabPanel("Kartta",
-                      tab5_ui_main("paakartta"))#,
+                      tab5_ui_main("paakartta")),#
              #### 6. tabPanel: Linjakuvaajat ####
-             #tabPanel("Linjakuvaaja",
-              #        tab6_ui_main("linjagraafit"))
+             tabPanel("Linjat",
+                      tab6_ui_main("linjagraafit")),
+             #### 7. tabPaneli: Koko taulukko ####
+             tabPanel("Taulukko",
+                      tab7_ui_main("koko_taulukko"))
              )
   )
 #### END UI ####
@@ -96,7 +104,7 @@ server <- function(input, output, session) {
       aineisto_in <- read_velmu_xl(input$file1$datapath) # fct_tab1_import_excel.R
       
       # Tarkistetaan luetun taulukon sarakemäärä, ja error tarvittaessa
-      if (ncol(aineisto_in) != 160) {
+      if (ncol(aineisto_in) < 157) {
         shinyalert("Virhe excel-taulukossa",
                    "Tarkista, että taulukko on LajiGIS-yhteensopivassa muodossa:
                    lajihavainnot on sarakkeessa [DM], hanke sarakkeessa [ER] ja viimeinen sarake taulukossa on [FD]", type = "error")
@@ -143,8 +151,9 @@ server <- function(input, output, session) {
   # Tab 5 Leaflet map
   tab5LeafletServer("paakartta", df_to_use = ogdf)
   # Tab 6 Graphs of dive lines
-  #tab6LinegraphServer("linjagraafit", df_to_use = ogdf)
+  tab6LinegraphServer("linjagraafit", df_to_use = ogdf)
   # Tab 7 whole table
+  tab7_table_Server("koko_taulukko", df_to_use = ogdf)
   
   
 }

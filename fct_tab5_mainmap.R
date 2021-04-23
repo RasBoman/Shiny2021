@@ -36,7 +36,7 @@ mutate_for_map <- function(data_in){
 # Create a leaflet map with depth as legend and variable
 leaflet_depth_map <- function(data_in){
   
-  syvyysCol <- colorFactor(palette = "RdYlBu", data_in$depth_levels)
+  syvyysCol <- colorFactor(palette = "YlOrRd", data_in$depth_levels, reverse = T)
   
   data_in %>%
     leaflet() %>%

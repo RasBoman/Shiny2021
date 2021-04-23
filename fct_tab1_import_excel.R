@@ -149,8 +149,8 @@ mutate_velmu_xl <- function(raw_velmu_df) {
                   
                   epavarma.pohja = 110,
                   VELMU.SORA = 111, #
-                  VELMU.HIEKKA = 112, #
-                  VELMU.LIEJU = 113, #
+                  pot.kasvuala = 112, # Muutettu VPD-linjoja varteb
+                  paljas.pot.kasvuala = 113, # Muutettu vpd-linjoja varten
                   
                   roskat.koodisto = 114,
                   roskat.kpl = 115,
