@@ -16,8 +16,8 @@ tab6_ui_main <- function(id){
       sidebarPanel(width = 3,
                    h3("Linja"),
                    selectInput(ns("linjanro"), label = "Suodata linjan perusteella:", choices = character()),
-                   textOutput(ns("kokoomavertailu"))),
-                   # checkboxInput(ns("naytapohjeliot"), label = "Näytä pohjaeläimet"),
+                   textOutput(ns("kokoomavertailu")),
+                   checkboxInput(ns("naytapohjaeliot"), label = "Piilota pohjaeläimet")),
                    #numericInput(ns("lajimaara"), label = "Näytettävä lajimäärä", value = 6)), # Lisää ohjeita jos tarpeen
       mainPanel(width = 9,
                 h2("Linjakuvaaja"),
@@ -36,7 +36,11 @@ tab6LinegraphServer <- function(id, df_to_use) {
       # Mutates and selects a list of lines for user interface to select from
       list_of_lines <- reactive(df_to_use() %>% prepare_kohde_linjat())
       # Uses only the selected line in further functions
-      selected_line_df <- reactive(df_to_use() %>% prepare_kohde_linjat() %>% filter_one_diveline(input$linjanro))
+      selected_line_df <- reactive(df_to_use() %>% 
+                                     prepare_kohde_linjat() %>% 
+                                     filter_one_diveline(line_input_from_app = input$linjanro) %>%
+                                     filter_pohjaelaimet(pohjis_input_from_app =  input$naytapohjaeliot))
+      
       # Nests species so they are accessible for plotting
       species_df <- reactive(selected_line_df() %>% linja_nest_species()) 
       # Wrangles substrates so they are accessible for plotting

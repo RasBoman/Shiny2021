@@ -7,6 +7,7 @@ library(ggrepel)
 library(scales)
 library(cowplot)
 library(extrafont)
+library(plotly)
 
 lajinimet <- read_rds("data/lajit.rds")
 
@@ -83,19 +84,19 @@ syv_plot <- function(linja_nest_species, luok_lajit, top_cover_lajit_df){
                 method = "gam",
                 geom = "area",
                 alpha = 0.3,
-                span = 0.5,
+                span = 0.4,
                 fill = "#1D91C0") +
     stat_smooth(se = F,
                 method = "gam",
                 geom = "line",
                 alpha = 0.5,
-                span = 0.5,
+                span = 0.4,
                 size = 2) +
     theme_minimal()  +
     labs(y = "Syvyys (m)") +
     geom_jitter(data = luok_lajit, 
                 height = 0.15,
-                width = 2,
+                width = 1,
                 alpha = 0.6,
                 shape = 19,
                 aes(x = arviointiruudun.etaisyys, 
@@ -108,14 +109,14 @@ syv_plot <- function(linja_nest_species, luok_lajit, top_cover_lajit_df){
     geom_label_repel(data = top_cover_lajit_df, # lajien_alarajat
                      max.iter = 5000,
                      size = 5.5,
-                     nudge_x = 25,
-                     nudge_y = 3,
+                     nudge_x = 20,
+                     nudge_y = 2,
                      segment.size = 0.15,
                      segment.alpha = 0.7,
                      # hjust = -2.5,
                      #  vjust = -1.5,
                      #direction = "x",
-                     force = 5,
+                     force = 4,
                      min.segment.length = 1,
                      family = "Candara",
                      aes(label = text.for.plot, 
@@ -130,12 +131,12 @@ syv_plot <- function(linja_nest_species, luok_lajit, top_cover_lajit_df){
           panel.grid.minor.x = element_blank(),
           panel.grid.minor.y = element_blank(),
           axis.title.x = element_blank(),
-          axis.title.y = element_text(size = 14, angle = 45, vjust = 0.5, hjust = 0.5, family = "Candara"),
-          axis.text.y = element_text(size = 13, family = "Candara"),
+          axis.title.y = element_text(size = 16, angle = 45, vjust = 0.5, hjust = 0.5, family = "Candara"),
+          axis.text.y = element_text(size = 15, family = "Candara"),
           legend.position = c(0.07, 0.15),
           legend.background = element_blank(),
           legend.title = element_blank(),
-          legend.text = element_text(size = 14),
+          legend.text = element_text(size = 16),
           text = element_text(family = "Candara")) +
     lajitarkennus_scale 
 }

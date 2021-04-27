@@ -25,18 +25,25 @@ prepare_kohde_linjat <- function(data_in){
     select(kohde, kohteen.nro, kohteen.nimi,
            ruudun.koordinaatti.N, ruudun.koordinaatti.E,
            arviointiruudun.etaisyys, arviointiruudun.syvyys,
-           kallio:puun.rungot, lajihavainto, lajin.peittavyys)
+           kallio:puun.rungot, lajihavainto, lajin.peittavyys) %>%
+    left_join(lajinimet, by = "lajihavainto")
 }
 
+# Filter only selected diveline
 filter_one_diveline <- function(data_in, line_input_from_app){
   data_in %>% 
     filter(kohde == line_input_from_app)
 }
 
+#filter to show or not show pohjikset
+filter_pohjaelaimet <- function(data_in, pohjis_input_from_app){
+  data_in %>%
+    filter(if (pohjis_input_from_app == TRUE) Tarkennus != "Pohjaeläimet" else Tarkennus %in% unique(Tarkennus))
+}
+
 # 2. Join species data with higher level taxa information
 join_lajitarkennus <- function(data_in){
-  data_in %>%
-    left_join(lajinimet, by = "lajihavainto") %>% # Left_join lajidata in order to plot also the higher taxa
+  data_in %>% # Left_join lajidata in order to plot also the higher taxa
     mutate(Tarkennus = replace_na(Tarkennus, levels(lajinimet$Tarkennus)[11])) %>% # All the species don't have a higher taxa -> to avoid NA rename to "Ei m??ritelty"
     mutate(Tarkennus = as_factor(Tarkennus)) %>% # Factorise to ease plotting
     filter(Tarkennus != "Kalat")
